@@ -18,11 +18,72 @@ Run = True
 pressing = False
 
 def giveMeData():
+	datas = []
+	middleBits = 3
+	heightBits = 3
+
 	step = 100
 	for x in range(0, ScreenWidth, step):
+		maxVal, minVal = 0, 0
 		for y in range(0, ScreenHeight):
-			print(currentImg[x][y])
-		break
+			if currentImg[x][y] > 127:
+				if minVal == 0:
+					minVal = y
+				maxVal = y
+		#print(minVal, maxVal)
+		if round(minVal*1000) == round(maxVal*1000):
+			datas.append((0, 0))
+		else:
+			datas.append(((-minVal + ScreenHeight / 2)/(ScreenHeight/2),
+						(-maxVal + ScreenHeight / 2)/(ScreenHeight/2)))
+	midVals = []
+	heightVals = []
+	for maxV, minV in datas:
+		middle = (maxV+minV)/2
+		height = (maxV-minV)
+
+		# middle / -1 ~ 1 => 0 ~ 2^bit-1
+		# midVals.append((2**(middleBits-1)) + int(middle * ((2**middleBits) - 1)))
+		midVals.append(
+			int((middle + 1) / 2 * ((2**middleBits) - 1))
+		)
+
+		# height 0 ~ 2 => 0 ~ 2^bit-1
+		heightVals.append(int(height / 2 * ((2**heightBits) - 1)))
+
+	middleValue = 0
+	heightValue = 0
+	i = 0
+	for m, h in zip(midVals, heightVals):
+		# print(m * 2**(middleBits*i), h * 2**(heightBits*i))
+		print(middleBits*(len(midVals) - i - 1), len(midVals) - i - 1)
+		middleValue += m * (2**(middleBits*(len(midVals) - i - 1)))
+		heightValue += h * (2**(heightBits*(len(midVals) - i - 1)))
+		i += 1
+	# print(midVals, heightVals)
+	print("원래 가능하지만, 부동 소수점 이슈로 폐기됨")
+	print(f"c = {int(ScreenWidth/step)}")
+	print(f"p = -1")
+	print("d_{0}="+str(heightValue))
+	print("b_{0}="+str(heightBits))
+	print("d_{1}="+str(middleValue))
+	print("b_{1}="+str(middleBits))
+	print("그래서 여기 밑에 껄 쓰면 됨")
+
+	midVals = []
+	heightVals = []
+	for maxV, minV in datas:
+		middle = (maxV+minV)/2
+		height = (maxV-minV)
+
+		midVals.append(round((middle + 1) / 2, 3))
+		heightVals.append(round(height/2, 3))
+	
+	print(f"c = {int(ScreenWidth/step)}")
+	print("b_{0} = "+str(heightVals))
+	print("b_{1} = "+str(midVals))
+	# print(f"p = -1")
+
 
 while Run:
 	# screen.fill((255, 255, 255))
